@@ -154,8 +154,28 @@ hold on
 plot(x,y2,'-r');
 xlabel('x');
 ylabel('y');
-text(0,0,'(0,0）')
-legend('sin x','cos x')
-坐标范围 axis([-20,20,-20,15]); x范围-20~20  y范围-20~15
-
-
+text(0,0,'(0,0）');
+legend('sin x','cos x');
+title('正余弦');
+曲线图plot:plot(x,y);plot(x,y,s),plot(x1,y1,s1,x2,y2,s2,...)
+b blue      . point       v triangle(down)      -   solid
+g green     o circle      ^ triangle(up)        :   dotted
+r red       x x-mark      < triangle(left)      -.  dashdot
+c cyan      + plse        > triangle(right)     --  dashed
+m magenta   * star        p pentagram           (none) no line
+y yellow    s square      h hexagram
+k black     d diamond
+w white     
+坐标范围 axis([-20,20,-20,15]); %x范围-20~20  y范围-20~15 xlim([-20,20])
+grid on/grid off/grid minor %网格
+对数 loglog, semilogx
+极坐标 polar
+三维polt3(x,y,z)
+三维曲面图 meshgrid
+[x,y]=meshgrid(-pi:0.1:pi);
+z=sin(x).*cos(y);
+mesh(x,y,z);  %meshc(x,y,z)
+surf(x,y,z);  %surfc(x,y,z)
+M函数格式
+function[output 1,..]=functionname(input,..)
+例： function area=rectarea(L,W) %求矩形面积
