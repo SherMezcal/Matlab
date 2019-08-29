@@ -1,1 +1,198 @@
+基于直观或经验的局部优化算法，不保证是最优解
+禁忌搜索、模拟退火、遗传算法、神经网络、蚁群算法
+1.旅行商问题（TSP)
+一个商人拜访n个城市，dij表示两市间的距离，xij为0，1变量，表示是否经过路径dij。
+每个城市拜访一次，∑Xij(i=1)=∑Xij(j=1)=1
+min∑dijxij i≠j
 
+2.模拟退火
+Metropolis准则
+Paccept(E(i+1)≤Ei)=1,Paccept(E(i+1)>Ei=e^[(1E(i+1)-Ei)/KT]
+伪代码
+初始值x0,xcurrent=x0;     %多次取初始解
+初始温度T=T0              %初始温度尽可能高，可在升温过程中确定初始温度
+while do
+  for i=1:TL
+      x'∈N(xcurrent)       %邻解
+      ΔC=C(x')-C(xcurrent) %花费
+      if ΔC≤0 || random(0,1)<exp(-ΔC/KT)
+        xcurrent=x'
+      end
+    end
+    T=decrease(T)
+  end
+return 
+注
+初始解：
+初始温度：
+降温：T(t)=T0/log(1+t) T(t)=T0/(1+t)  T(t+ΔT)=αT(t) (0.8≤αx≤0.99
+等温步数：
+花费函数：目标函数构造，目标函数，目标函数的相反数、倒数
+终止条件：阈值
+
+例：从北京出发，游遍34个省会城市（包括直辖市),求最短路径
+初值S0=[1,...,i,...,j,...,n,1]
+邻解S'=[1,...,j,...,i,...,n,1]
+花费COST=∑dist(S(i),S(i+1))
+初温T0=1000,Tγ+dγ=αTγ
+
+代码
+route=randparm(numbercitise);       %路径格式:[1,2,...,n]，随机排序
+temperature=1000;cooling_rate=0.95; %初始温度
+Titerations=1;                      %循环控制   
+previous_distance=totaldistance(route);%总长
+while temperature>1.0
+  temp_route=perturb(route,'reverse');   %邻解
+  current_distance=totaldistance(temp_route);%路长
+  diff=current_distance-previouse_distance;
+  if(diff<0||rand<exp(-diff/(temperature)))
+    route=temp_route;                   %换解
+    previous_distance=current_distance;
+    Titerations=Titerations+1;
+  end
+  if Titeration>=10
+    temperature=cooling+rate*temperature; %每十步降温
+    Titerations=0;
+  end
+end
+
+distancematrix函数计算距离矩阵
+function dis=distancematrix(city)
+numbercities=length(city)
+R=6378.137 %地球半径
+for i=1:numbercities
+  for j=i+1:numbercities
+    dis(i,j)=distance(city(i).lat,city(i).long,city(j).lat,city.long,R);%球面距离
+    dis(j,i)=dis(i,j);
+  end
+end
+
+totaldistance函数计算总距离
+function d=totaldistance(dis,route)
+d=dis(rount(end),route(1));
+for k=1:length(route)-1
+  i=route(k);j=route(k+1);
+  d=d+dis(i,j);
+end
+
+perturb函数产生邻解
+function route = perturb(route_old,method)
+route=route_old;
+numbercities=length(route);
+city1=ceil(numbercities*rand); %[1,2,..,n-1,n]
+city2=cei;(numbercities*rand)  %1<=city1,city2<=n
+switch method
+   case 'reverse'              %[1 2 3 4 5 6]→[1 5 4 3 2 6]
+     cmin=min(city1,city2);
+     cmax=max(city1,city2);
+     route(cmin:cmax)=route(cmax:-1:cmin);
+   case 'swap'                %[1 2 3 4 5 6]→[1 5 3 4 2 6]
+     route([city1,city2])=route([city2,city1]);
+end
+
+3.遗传算法
+基因，染色体，种群
+伪代码
+初代K=0，变异概率α，杂交概率β 初始种群n，Pk
+while do 
+  评价函数：Pk的适应度fitness(i)
+  选择：Pk中m个个体加入Pk+1
+  杂交：αm加入Pk+1
+  变异：βm加入Pk+1
+  K=K+1
+end
+return 挑出最后一代最好的
+注：
+编码：二进制编码，格雷编码，实数编码
+评价函数:目标函数，目标函数的倒数、相反数，非负，单值，连续，最大化
+选择：轮盘赌Pi=fi/∑fj(j=1:N),两两竞争，排序选择
+杂交：单点交叉 1 1 → 1 0
+              0 0   0 1
+      两点交叉 1 1 1 → 1 0 1
+              0 0 0   0 1 0
+变异  单点变异 换位变异
+
+例：从北京出发，游遍34个省会城市（包括直辖市),求最短路径
+编码：[1,...,i,...,j,...,n,1]
+评价函数：1/∑dist(S(i),S(i+1))
+选择：两两竞争
+杂交：1 2 3    4 5 6 7   8 9 →  3 8 1   4 5 6 7   9 2
+      3 4 5   1 8 7 8    6 2    4 3 2   1 8 7 9   5 6
+变异  
+
+代码
+popSize=100;    %种群规模
+max_generation=1000;%1000代
+Pmutation=0.16;     %变异概率
+for i=1:popSize     %初始化
+  pop(i,:) = randparm(numberofcities);
+end
+for generation =1:max_generation
+  fitness =1/totaldistance(pop,dis); %适应度
+  [maxfit,bestID]=max(fitness);
+  bestPop=pop(bestID,:);              %找精英
+  pop=select(pop,fitness,popSize,'competition');%选择
+  pop=crossover(pop);                 %交叉
+  pop=mutate(pop,Pmutation);          %变异
+  pop=[bestPop;pop];                  %精英保护
+end
+popDist=total_distance(pop,dis);      %距离
+[minDist,index]=min(popDist);         %最短距离
+optRoute=pop(index,:);                %对应路径
+
+select函数
+function popselect=select(pop,fitness,nselect,method)
+popSize=size(pop,1);
+switch method 
+  case 'roulette'
+    p=fitness/sum(fitness);%[0.2 0.3 0.5]
+    cump=cumsum(p);        %[0.2 0.5 1.0]
+    %yi=线性插值（x,y,xi)
+    I=interp1([0 cump],1:(popSize+1),rand(1,nselected,'linear');
+    I=floor(I);
+  case 'competation'
+    i1=ceil(popSize*rand(1,neselected));
+    i2=ceil(popSize*rand(1,neselected));
+    I=i1.*(fitness(i1)>=fitness(i2))+i2.*(fitness(i1)<fitness(i2));
+end
+popselect=pop(I);
+
+crossover函数交叉
+function children =crossover（parents)
+[popSize,numberfcities]=size(parents);
+children=parents;   %初始化子代
+for i=1:2:popSize
+  parents1=parent(i+0,:) child1=parent1;
+  parents2=parent(i+1,:) child2=parent2;
+  InsertPoints=ceil(numberpfcitirs*rand(1,2));%交叉点
+  for j=min(InsertPoints):max(InsertPoints)
+    if parent(j)~=parents2(j) %对应位置不重复
+      child1(child1==parent2(j)=child1(j);
+      child1(j)=child2(j);
+      child2(child2==parent1(j)=child2(j);
+      child2(j)=child1(j);
+    end
+  end
+  children(i+0,:)=child1;children(i+1:)=child2;
+end
+
+mutate函数变异
+function children=mutation(parents,promutation)
+[popSize,numberfcities]=size(parents);
+children=parents;   %初始化子代
+for k=1:popSize
+  if rand<probmutation
+    InsertPoints=ceil(numberofcities*rand(1,2));
+    I=min(InsertPoints);J=max(InsertPoints);
+    Switch ceil(rand*4)
+      case 1   %[1 2 3 4 5 6 7]→[1 5 3 4 2 6 7]
+        children(k,[I,J])=parents(k,[J,I]);
+      case 2   %[1 2 3 4 5 6 7]→[1 3 4 5 2 6 7]
+        children(k,I:J)=parents(k,[I+1:J I];
+      otherwise   %[1 2 3 4 5 6 7]→[1 5 4 3 2 6 7]
+        children(K,I:J)=parents(K,J:-1:I);
+    end
+  end
+end
+    
+    
