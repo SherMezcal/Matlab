@@ -1,1 +1,151 @@
+一、数据的读写
+1.文件路径
+>>files=dir('Videos')
+files = 包含以下字段的空的 0×1 struct 数组:
+    name
+    folder
+    date
+    bytes
+    isdir
+    datenum
+    
+>> files(1).name
+>> names=(files.name)
+>> data=load('score.txt');  %数组
+>> w=data(:,1);
+>> fid = fopen('swords.txt','r'); %字符串
+>> t1 = fgetl(fid) %读取
+>> t=[t1(1) t2(3) t3(1)] %组合
+>>fclose(fid)
+
+例：
+a.txt
+Brltway sniper date.
+9/5/2002,38.766,-76.88 %时间，经度，纬度
+fid=fopen(' a.txt','r');
+tline=fgetl(fid);tline=fgetl(fid); %读取
+while ischar(tline)
+  data=regexp(tline,',','splot');提取，以逗号分割
+  [date,lat,long]=data{:}; %赋值
+  time=datenum(date,'dd/mm/yyyy');%格式
+  lat=str2num(lat);long=str2num(long); %字符串转化数值
+  filne=fget1(fid);
+end
+fclose(fid);
+
+2.文本数据写
+fid=fopen('.txt');
+fprintf(fid,'包包 200');  %同fprintf(fid,'包包 %d',200);fprintf(fid,'%s %d','包包‘，200);
+detail=[1 2 3 4 5 6];
+fprintf(fid,'%-5d %5.1f\n',[1:6;detail]; %六列两行的数据
+
+3.excel文本数据
+读
+data=xlsread('data.xls','Sheet1','A3:C5') %文档名，表单，范围
+data(isnan(data))=0 %为NaN赋值为0
+写
+xlswrite('data.xls,{'1','2'},'Sheet1','A1:B1')
+XYZ={1 2 3;2 3 4;3 4 5};
+xlswrite('data.xls',XYZ,'A2:C4');%默认Sheet1
+ 
+4图片数据读入
+Yui=imread('Yui.jpg');
+size(Yui) %三维数组
+image(Yui)%显示
+lip=Yui(242:266,255:279,:);%提取 红绿蓝三层
+
+5视频数据读入
+obj=VideoReader('Video/AoiSora.avi')
+obj.Name;         %视频名称
+frame=read(obj,25);%度视频的第25帧
+imshow(frame);     %显示
+
+二、线性代数求解、拟合
+1.线性方程组求解
+定解方程组
+2x+3y+1z=4
+4x+2y+3z=17
+7x+1y-1z=1
+>>A=[2 3 1;4 2 3;7 1 -1];B=[4 17 1]';
+>>A\B
+不定方程组
+4x+5y+1z=3
+1x+2y+4z=15
+>>A=[4 5 1;1 2 4];B=[3 15]';
+>>A\B
+超定方程组
+4x+5y=3
+1x+2y=15
+3x+1y=12
+>>A=[4 5;1 2;3 1];B=[3 15 12];
+>>A\B
+PageRank算法的实现
+R(pi)=1-d/N+d∑R(pj)/L(pj) pj∈M(pi) L(pi)概率值
+代码：
+d=0.85;n=6;
+C=[]%6x6矩阵
+I=eye(n);
+R=(I-d*L)\C  %R=C+D=d*L*R
+
+2.线性和非线性拟合
+x=[1.0,1.5,2.0,2.5,3.0]';
+y=[0.9,1.7,2.2,2.6,3.0]';
+a=polyfit(x,y,1);  %y=ax+b; 结果为a,b两系数
+xi=1:0.1:3;
+yi=polyval(a,xi);   %拟合线
+plot(x,y,'o',xi,yi);%绘图
+p=fittype('a*x+b*sin(x)+c');
+f=fit(x,y,p);       % 按P的方式计算a,b,c的值
+plot(f,x,y);        %画图
+
+例：人口数据的拟合
+x(t)=x0e^rt →lnx(t)=rt+lnx0 →Y=a1t+a2  r是人口增长率
+数据
+1790 3.9  1830 12.9 1870 50.2
+1800 5.3  1840 17.1 1880 50.2
+1810 7.2  1850 23.2 1890 62.9
+1820 9.6  1860 31.4 1900 76.0
+代码
+t=1790:10:1900;
+p=[] %人口数据；
+Y=log(p);X=t;
+a=polyfit(X,Y,1);  %指数拟合求r和lnx0
+x0=exp(a(2));r=a(1);
+ti=1790:1900;      %一年一取
+pti=x0*exp(r*ti);
+plot(t,p,'o',ti,pti,'m');
+
+3.插值和线性回归
+插值：interp1
+线性回归：regress Y=b0+b1x1+b2x2+...+bkxk
+[B,Bint,R,Rint,Starts]=regress(Y,X) B:回归得到的自变量系数 Bint:B的95%的置信区间矩阵
+
+4.Runge-kutta法求解微分方程
+一阶y'=cost
+f=@(t,y)cos(t); %f(t,y)=cos(t)
+tspan=[0,2*pi]; %时间范围
+y0=2;           %初值
+[t,y]=ode23(f,tspan,y0);
+
+高阶 y''=-siny+sin5t,y(0)=1,,y'(0)=0
+%y1=y;y2=y';y1'=y2;y2'=-sin(y1)+sin(5t);
+f=@(t,y)[y(2);-sin(y(1))+sin(5*t)];
+tspan=[0,20];
+y0=[1;0];
+[t,y]=ode23(f,tspan,yo);
+
+例：传染病模型
+ S:易感-βI→I:感染-γ→R:康复
+ dS/dt=-βSI，dI/dt=βSI-γI，dR/dt=γI  γ:康复率 β:感染率
+ 代码
+函数odesir
+function dy=odesir(t,y,beta,gama)   %y=[S I R]'
+dy=[-beta*y(1)*y(2);                %dS/dt
+     beta*y(1)*y(2)-gama*y(2);      %dI/dt
+                    gama*y(2)];     %dR/dt
+                    
+N=100;beta=0.01;gama=0.1
+tspan=[0,50];y0=[99 1 0];           %y0初值
+[t y]=ode45(@odesir,tspan,y0,[],beta,gama);
+plot(t,y);
 
