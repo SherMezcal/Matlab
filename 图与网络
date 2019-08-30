@@ -1,1 +1,70 @@
+1.戈尼斯堡七桥问题
+2.无向图：顶点集V(G)、边集E(G)、关联函数、环、连杆、重边
+3.有向图：顶点集V(G)、弧集A(G)、关联函数、关联矩阵、邻接矩阵
+4.子图、完全图、完全二分图、星图、连通图、不连通图、路、圈、数
+5.网络、度(出度d-(v)、入度d+(v))、
+  点度中心度：CD(V)=d+(V)
+  接近中心度：CC(v)=1/Σd(u,v)  u∈V  v和其他节点间的距离和的倒数
+  中间中心度：CB(v)=∑σst(v)/σst s≠v≠t∈V  σst表示s到t之间最短路径的数量  σst(v)表示ast中经过v的最短路径数量
+  特征向量中心度：CE(v)=Xv=∑Xu/γ u∈M(v)=∑avuXu/γ u∈V
+6.函数      graphallshortestpaths  所有顶点间的最短距离
+            graphconnredcomp       找连通分支
+            graphisreddag          是否含有圈
+            graphisomorphism       是否有生成树
+            graphmaxflow           有向图的最大流
+            graphminspantree       最小生成树
+            graphpred2path         把前驱结点序列变成路径的顶点序列
+            graphshortestpath      求指定一对定点间的最短路径和距离
+            graphtopoorder         执行有向无圈图的拓扑排序
+            graphtraverse          从一顶点出发，能遍历图中的定点
+ 7.数据结构：满矩阵full、稀疏矩阵sparse
+ 例：[a,b,c,d,e,f]=deal(1,2,3,4,5,6);
+ w=[0 2 3 0 0 0 
+    2 0 6 5 3 0
+    3 6 0 0 1 0
+    0 5 0 0 1 2
+    0 3 1 1 0 4
+    0 0 0 2 4 0];
+ W=sparse(w);
+ [dist,path,pred]=graphshortestpath(W,a,f);%最短路径
+ 
+ 8.网络分析 
+   函数   degrees                  顶点的度、入度、出度
+          ave_neighbor_deg         顶点的相邻顶点平均度
+          closeness                顶点的接近中心度
+          node_betweenness_faster  顶点的中间中心度
+          edge_betweenness         边的中间中心度
+          eigencentrality          顶点的特征向量中心度
+          clust_coeff              顶点的集聚系数
+n=4
+a=1;b=2;c=3,d=4;
+A=zeros(n);
+A(a,[c,d])=1;
+A(b,(c)]=1;
+A(c,[a,b])=1;
+A(d,[a])=1;
+Cd=degrees(A)'/(n-1);   %点度中心度并标准化
+Cc=closeness(A)*(n-1);  %接近中心度并标准化
+    
+例：34个城市环游路程最短,最短回路
+R=6378.137;
+dist=zeros(n);
+for i=1:n
+  for j=i+1:n
+    dist(i,j)=distance(lat(i),lon(i),lat(j),lon(j),R);
+  end
+end
+[order,totdist]=minhamiltonpath(dist);
+
+例：兵分三路视察灾情，三路路程均等且最短
+%两点间的最短路径构造完全图G  graphallshortestpaths
+%三个子图G(v1)G(v2)G(v3)都包含点O，并加和不漏点
+%Hamilton回路总长度最小，且三路长度均衡min(Cmax-Cmin)
+%分组
+
+
+
+
+
+
 
